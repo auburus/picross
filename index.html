@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>PiCross</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="http://code.jquery.com/jquery-3.1.0.min.js"></script>
+</head>
+
+<body>
+<!-- Start with 5x5 puzzle -->
+<table id="puzzle" style="border-collapse:collapse">
+    <thead>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+    <script>
+        var beautifulPrint = function(matrix) {
+            var str = '';
+            for (i=0; i<5; i++) {
+                for (j=0; j<5; j++) {
+                    str += matrix[i][j] + ', ';
+                }
+                str += '\n';
+            }
+            return str;
+        };
+
+        var xor = function(matrix1, matrix2) {
+            var result = 0;
+            for (i=0; i<5; i++) {
+                for (j=0; j<5; j++) {
+                    result += (matrix1[i][j] ^ matrix2[i][j]);
+                }
+            }
+            return result;
+        }
+
+        var matrix = new Array(5);
+        var picross = new Array(5);
+        for (i=0; i<5; i++) {
+            matrix[i] = new Array(0,0,0,0,0);
+            picross[i] = new Array(5);
+            for (j=0; j<5; j++) {
+                picross[i][j] = Math.round(Math.random());
+            }
+        }
+
+        /**
+         * Generate the rows and cols numbers for picross
+         */
+        var rows = new Array(5);
+        var cols = new Array(5);
+        for (i = 0; i< 5; i++) {
+            rows[i] = [];
+            cols[i] = new Array();
+        }
+
+        for (i = 0; i < 5; i++) {
+            var value = 0;
+            var colValue = 0;
+
+            for (j = 0; j<5; j++) {
+                value += picross[i][j];
+                colValue += picross[j][i]; //Notice that the index are swapped
+                if (picross[i][j] === 0 && value !== 0) {
+                    rows[i].push(value);
+                    value = 0;
+                }
+
+                if (picross[j][i] === 0 && colValue !== 0) {
+                    cols[i].push(colValue);
+                    colValue = 0;
+                }
+            }
+            if (value !== 0) {
+                rows[i].push(value);
+            }
+
+            if (colValue !== 0) {
+                cols[i].push(colValue);
+            }
+
+            if (rows[i].length === 0){
+                rows[i].push(0);
+            }
+
+            if (cols[i].length === 0) {
+                cols[i].push(0);
+            }
+        }
+        
+        /**
+         * Logs that can be deleted once done
+         */
+        console.log(beautifulPrint(picross));
+        console.log(rows);
+        console.log(cols);
+
+
+        /**
+         * Print the picross
+         */
+        $(document).ready(function() {
+            var i = 0;
+            var thead = '<tr><td></td>';
+            var tbody = '';
+
+            cols.forEach(function(col) {
+                thead += '<td>';
+                col.forEach(function(number, i) {
+                    if (i === 0) {
+                        thead += number;
+                    } else {
+                        thead += '<br/>' + number;
+                    }
+                });
+            });
+            $("#puzzle > thead").html(thead);
+
+            matrix.forEach(function(row, i) {
+                var rowElem = '<tr><td>';
+                //Insert hints
+                rows[i].forEach(function(number, i) {
+                    if (i === 0) {
+                        rowElem += number;
+                    } else {
+                        rowElem += ' ' + number;
+                    }
+                })
+                rowElem += '</td>';
+
+                var j = 0;
+                row.forEach(function(cell) {
+                    rowElem += '<td id="cell' + i + j + '" class="cell white-cell"></td>';
+                    j++;
+                });
+                i++;
+                rowElem += '</tr>';
+                tbody += rowElem;
+            });
+
+            $("#puzzle > tbody").html(tbody);
+
+            for(i=0; i<5; i++) {
+                for(j = 0; j< 5; j++) {
+                    $('#cell' + i + j).click(function(event) {
+
+                        cell = $(event.target);
+
+                        if (event.shiftKey) {
+                            if (cell.hasClass('full-cell')) {
+                                cell.toggleClass('full-cell empty-cell');
+                            } else {
+                                cell.toggleClass('empty-cell blank-cell');
+                            }
+                        } else {
+                            if (cell.hasClass('empty-cell')) {
+                                cell.toggleClass('empty-cell full-cell');
+                            } else {
+                                cell.toggleClass('full-cell blank-cell');
+                            }
+
+                            var i = cell.attr('id')[4];
+                            var j = cell.attr('id')[5];
+                            matrix[i][j] = (matrix[i][j] + 1) % 2;
+                        }
+
+                        if (xor(matrix, picross) === 0) {
+                            alert('Congratulations!');
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

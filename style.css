@@ -14,3 +14,13 @@
 	background-color:blue;
 }
 
+.cell:nth-child(5n+7) {
+	border-left: 2px solid red;
+}
+tr:nth-child(5n+6) > td{
+	border-top: 2px solid red;
+}
+
+.header {
+	border-top: 0px solid black !important;
+}

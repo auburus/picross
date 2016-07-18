@@ -8,7 +8,6 @@
 </head>
 
 <body>
-<!-- Start with 5x5 puzzle -->
 <table id="puzzle" style="border-collapse:collapse">
     <thead>
     </thead>
@@ -16,10 +15,11 @@
     </tbody>
 </table>
     <script>
+        var size = 15;
         var beautifulPrint = function(matrix) {
             var str = '';
-            for (i=0; i<5; i++) {
-                for (j=0; j<5; j++) {
+            for (i=0; i<size; i++) {
+                for (j=0; j<size; j++) {
                     str += matrix[i][j] + ', ';
                 }
                 str += '\n';
@@ -29,20 +29,21 @@
 
         var xor = function(matrix1, matrix2) {
             var result = 0;
-            for (i=0; i<5; i++) {
-                for (j=0; j<5; j++) {
+            for (i=0; i<size; i++) {
+                for (j=0; j<size; j++) {
                     result += (matrix1[i][j] ^ matrix2[i][j]);
                 }
             }
             return result;
         }
 
-        var matrix = new Array(5);
-        var picross = new Array(5);
-        for (i=0; i<5; i++) {
-            matrix[i] = new Array(0,0,0,0,0);
-            picross[i] = new Array(5);
-            for (j=0; j<5; j++) {
+        var matrix = new Array(size);
+        var picross = new Array(size);
+        for (i=0; i<size; i++) {
+            matrix[i] = new Array(size);
+            picross[i] = new Array(size);
+            for (j=0; j<size; j++) {
+                matrix[i][j] = 0;
                 picross[i][j] = Math.round(Math.random());
             }
         }
@@ -50,18 +51,18 @@
         /**
          * Generate the rows and cols numbers for picross
          */
-        var rows = new Array(5);
-        var cols = new Array(5);
-        for (i = 0; i< 5; i++) {
+        var rows = new Array(size);
+        var cols = new Array(size);
+        for (i = 0; i< size; i++) {
             rows[i] = [];
             cols[i] = new Array();
         }
 
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < size; i++) {
             var value = 0;
             var colValue = 0;
 
-            for (j = 0; j<5; j++) {
+            for (j = 0; j<size; j++) {
                 value += picross[i][j];
                 colValue += picross[j][i]; //Notice that the index are swapped
                 if (picross[i][j] === 0 && value !== 0) {
@@ -108,7 +109,7 @@
             var tbody = '';
 
             cols.forEach(function(col) {
-                thead += '<td>';
+                thead += '<td class="header">';
                 col.forEach(function(number, i) {
                     if (i === 0) {
                         thead += number;
@@ -120,7 +121,7 @@
             $("#puzzle > thead").html(thead);
 
             matrix.forEach(function(row, i) {
-                var rowElem = '<tr><td>';
+                var rowElem = '<tr><td class="header">';
                 //Insert hints
                 rows[i].forEach(function(number, i) {
                     if (i === 0) {
@@ -133,7 +134,7 @@
 
                 var j = 0;
                 row.forEach(function(cell) {
-                    rowElem += '<td id="cell' + i + j + '" class="cell white-cell"></td>';
+                    rowElem += '<td id="cell_' + i + '_' + j + '" class="cell white-cell"></td>';
                     j++;
                 });
                 i++;
@@ -143,8 +144,8 @@
 
             $("#puzzle > tbody").html(tbody);
 
-            for(i=0; i<5; i++) {
-                for(j = 0; j< 5; j++) {
+            for(i=0; i<size; i++) {
+                for(j = 0; j< size; j++) {
                     $('#cell' + i + j).click(function(event) {
 
                         cell = $(event.target);
@@ -162,8 +163,10 @@
                                 cell.toggleClass('full-cell blank-cell');
                             }
 
-                            var i = cell.attr('id')[4];
-                            var j = cell.attr('id')[5];
+
+                            var splitted = cell.attr('id').split('_');
+                            var i = splitted[1];
+                            var j = splitted[2];
                             matrix[i][j] = (matrix[i][j] + 1) % 2;
                         }
 

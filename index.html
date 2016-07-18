@@ -146,13 +146,22 @@
 
             for(i=0; i<size; i++) {
                 for(j = 0; j< size; j++) {
-                    $('#cell' + i + j).click(function(event) {
+                    $('#cell_' + i + '_' + j).click(function(event) {
 
                         cell = $(event.target);
+
+                        var splitted = cell.attr('id').split('_');
+                        var i = splitted[1];
+                        var j = splitted[2];
+
+                        
+                        //He d'actualitzar el valor de la matriu quan canvia
+                        //l'estat de .full-cell
 
                         if (event.shiftKey) {
                             if (cell.hasClass('full-cell')) {
                                 cell.toggleClass('full-cell empty-cell');
+                                matrix[i][j] = (matrix[i][j] + 1) % 2;
                             } else {
                                 cell.toggleClass('empty-cell blank-cell');
                             }
@@ -161,13 +170,9 @@
                                 cell.toggleClass('empty-cell full-cell');
                             } else {
                                 cell.toggleClass('full-cell blank-cell');
+                                matrix[i][j] = (matrix[i][j] + 1) % 2;
                             }
 
-
-                            var splitted = cell.attr('id').split('_');
-                            var i = splitted[1];
-                            var j = splitted[2];
-                            matrix[i][j] = (matrix[i][j] + 1) % 2;
                         }
 
                         if (xor(matrix, picross) === 0) {
